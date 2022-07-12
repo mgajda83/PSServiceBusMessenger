@@ -1,33 +1,33 @@
 Function Send-ServiceBusMessage
 {
-    <#
+	<#
 	.SYNOPSIS
-	    Send message to ServiceBus queue.
+		Send message to ServiceBus queue.
 
-    .PARAMETER ConnectionString
-	    ConnectionString to service us queue.
+	.PARAMETER ConnectionString
+		ConnectionString to service us queue.
 
-    .PARAMETER TokenValidTimeOut
-        Token timeout.
+	.PARAMETER TokenValidTimeOut
+		Token timeout.
 
-    .PARAMETER MessgaeBody
-        Message object that will be convert to json.
+	.PARAMETER MessageBody
+		Message object that will be convert to json.
 
 	.EXAMPLE
-        Send-ServiceBusMessage -ConnectionString $ConnectionString -MessgaeBody $MessgaeBody
+		Send-ServiceBusMessage -ConnectionString $ConnectionString -MessageBody $MessageBody
 
 	.NOTES
 		Author: Michal Gajda
 	#>
 	[CmdletBinding(SupportsShouldProcess, ConfirmImpact='High')]
-    param (
-        [Parameter(Mandatory=$true)]
-        [String]$ConnectionString,
+	param (
+		[Parameter(Mandatory=$true)]
+		[String]$ConnectionString,
 		[Parameter()]
-        [int]$TokenValidTimeOut,
-        [Parameter(Mandatory=$true)]
-        $MessgaeBody
-    )
+		[int]$TokenValidTimeOut,
+		[Parameter(Mandatory=$true)]
+		$MessageBody
+	)
 
 	Begin
 	{
@@ -60,11 +60,18 @@ Function Send-ServiceBusMessage
 
 	Process
 	{
+		if($MessageBody -is [String])
+		{
+			$Body = $MessageBody
+		} else {
+			$Body = ($MessageBody | ConvertTo-Json -Depth 10 -Compress)
+		}
+
 		$Params = @{
 			Uri = "https://$($Endpoint.Host)/$EntityPath/messages"
 			ContentType = "text/plain;charset=utf-8"
 			Method = "POST"
-			Body = ($MessgaeBody | ConvertTo-Json -Compress)
+			Body = $Body
 			Headers = @{
 				Authorization = $SASToken
 			}
@@ -72,7 +79,7 @@ Function Send-ServiceBusMessage
 
 		$Result = Invoke-RestMethod @Params
 
-        Return $Result
+		Return $Result
 	}
 
 	End
@@ -84,8 +91,8 @@ Function Send-ServiceBusMessage
 # SIG # Begin signature block
 # MIIuSAYJKoZIhvcNAQcCoIIuOTCCLjUCAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
-# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCApIRLmIx6flPXY
-# 1+CvVokh3fsP0uzOsDgdO53ho2NDVKCCJnowggXJMIIEsaADAgECAhAbtY8lKt8j
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCA8d746u7NvM7uU
+# XY8yMHfhE/hybBoIcyVbksBif7jCUqCCJnowggXJMIIEsaADAgECAhAbtY8lKt8j
 # AEkoya49fu0nMA0GCSqGSIb3DQEBDAUAMH4xCzAJBgNVBAYTAlBMMSIwIAYDVQQK
 # ExlVbml6ZXRvIFRlY2hub2xvZ2llcyBTLkEuMScwJQYDVQQLEx5DZXJ0dW0gQ2Vy
 # dGlmaWNhdGlvbiBBdXRob3JpdHkxIjAgBgNVBAMTGUNlcnR1bSBUcnVzdGVkIE5l
@@ -295,38 +302,38 @@ Function Send-ServiceBusMessage
 # LkEuMSQwIgYDVQQDExtDZXJ0dW0gQ29kZSBTaWduaW5nIDIwMjEgQ0ECED8vBp9c
 # a4iemmXFUwZ0lhUwDQYJYIZIAWUDBAIBBQCggYQwGAYKKwYBBAGCNwIBDDEKMAig
 # AoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3AgEL
-# MQ4wDAYKKwYBBAGCNwIBFTAvBgkqhkiG9w0BCQQxIgQgeS6dC6sLUMncmjgg0FBL
-# 5IH1S1dVzQqgWErpj99vTHAwDQYJKoZIhvcNAQEBBQAEggIASCw+D1ry9O+5wWpy
-# yLCxs+iQn4MRJGReENOjWBWbHUy/9rNq1ZhO4SusAtvpXD+sAlFjnbaUHa41FjGh
-# vtq2aNMNOh0QZaorRDNBrMC5xmidrEyh/hZf0Jhof//Dv2lxAbJNIRSBF0Aky4NH
-# DeuFAre9TiOl8Khd81SmhyF4qQFP3CPAF6KvS7C8Jhz3ep/O/6HTm3lrU80BYCG7
-# 4gSeC6nSLbueyooKh8Wntab6jnrD0iLRlDP/AOKJzykIp4stnHq7+OuQcyNcL4xN
-# jsoRGfk8BcmhZWJQb2lx08tLiv67hKkxkv0iyBGI3LnYK39pvJ5qGjRPrFGK2K28
-# /6STeClx2IDZxR410BdX/HPaEHsfj05+OZvRYHHWgMHEXw+rcstQCzFY94n1Z4kh
-# gd2NM4F0aXXb5xe1o5e0pQVrmuNRQjIEoMZHC35KR0IkDcQcxM+/0m7ArbUjEout
-# BXhLynOE3/X8ckDnnV/3Qnif/EVVsLu1o0ttwXp0Ah5BV6VzVTTfQ5alb+mO74/V
-# 78R8cgqg+EqWqLD2QQOtESzZaSkUdnSEhf2r+U9dFTU4xsFKnRMtMBZgp0o9qKdg
-# XoPmMcKKXPlvwJs9G1S2GYi+Kleb+PYlpXmsDSN817GNTkPkZ4k+xRw/j9e/SNqr
-# 2KzOFkdg5sX9jzWpL+il5VdIj0ehggQEMIIEAAYJKoZIhvcNAQkGMYID8TCCA+0C
+# MQ4wDAYKKwYBBAGCNwIBFTAvBgkqhkiG9w0BCQQxIgQgsl3vPB2PIt3QAN3B3iOT
+# +QI6Vll6/X201Amb2uJaIFEwDQYJKoZIhvcNAQEBBQAEggIAbLfsFRQGi5w9uZpA
+# TOxmKNLp4wo5k3OzwJDvo+oo/k3DAnTUqDEjIJ7Lhba/5uggv/xUY6L/x/ruEilq
+# 8QFl8hqqGTmMSIfkNXBiE01monwIBlhjl3zYHA1hK/mDg+iG9lhLkKIcVIwqCO1f
+# IlhJ40f2CcuKcJ/TM8KKSxe+BlyZgizdTAUU4vjh+ALtSiQjxcW+ySjcvM1pw4Nb
+# JVsPy5/RgT6Xx692EVKAro2wDSW/6HhhVgdUAwOpl0JQyAgTh9kaf9Xf9wEfmQU5
+# hSXiU2UwbmlT3pCPo9dmZW/rqRFEiuhPTEbomryAoDs8xN1tDAU0gY6uiQ4dB3OS
+# pg3j79fPNj/FvbcZbWMhFwl303Qq9sj4zS9wthxJTYK3rC1eF/jeOInDl7L709jg
+# HbngHCio2VrRfvLWsKDRtaqSQFL647SfdYsQb3Tyt8DBkbesL7l2S+TRgyM/60qC
+# EVbiWm64fKULWnwIYFCN9u4CEXDnTSoQVCN3aJRYGbFXpUEO/K99gkMge5a+6J+5
+# mdskae6lgFQRJEdx8flo91A1I0DYRsfHLb9piqLo8PE+5A6qz05jaKRSNLazlDo3
+# RXw5Nf2NXPlWEiZDUSHR0fVSmr0AtLE2JtvZ0tUocWRVawzTJbDzjQheJtJFhoM9
+# XsxVdnbn1tUG+HOqgaerWE4j6aShggQEMIIEAAYJKoZIhvcNAQkGMYID8TCCA+0C
 # AQEwazBWMQswCQYDVQQGEwJQTDEhMB8GA1UEChMYQXNzZWNvIERhdGEgU3lzdGVt
 # cyBTLkEuMSQwIgYDVQQDExtDZXJ0dW0gVGltZXN0YW1waW5nIDIwMjEgQ0ECEQDx
 # ZCWMCbbie+IOMmCOS/SoMA0GCWCGSAFlAwQCAgUAoIIBVzAaBgkqhkiG9w0BCQMx
-# DQYLKoZIhvcNAQkQAQQwHAYJKoZIhvcNAQkFMQ8XDTIyMDUxOTE1NDAyOFowNwYL
+# DQYLKoZIhvcNAQkQAQQwHAYJKoZIhvcNAQkFMQ8XDTIyMDcxMjEwMDI0M1owNwYL
 # KoZIhvcNAQkQAi8xKDAmMCQwIgQgG1m/6OV3K6z2Q7t5rLSOgVh4TyHFVK4TR206
-# Gj4FxdMwPwYJKoZIhvcNAQkEMTIEMCIqD4aBypYLukzkGoLLkEsYO4WaD5HYlfVR
-# TaMwi9R3NQoim2IV8ncQQKpsDJEVFDCBoAYLKoZIhvcNAQkQAgwxgZAwgY0wgYow
+# Gj4FxdMwPwYJKoZIhvcNAQkEMTIEMKI+u3QB1hJ0bi35jFwI4Tgrz9bq5ZTxWgKZ
+# GpaGEieYTwXqlPc/O+pZ6pwzn7MPQzCBoAYLKoZIhvcNAQkQAgwxgZAwgY0wgYow
 # gYcEFNMRxpUxG4znP9W1Uxis31mK4ZsTMG8wWqRYMFYxCzAJBgNVBAYTAlBMMSEw
 # HwYDVQQKExhBc3NlY28gRGF0YSBTeXN0ZW1zIFMuQS4xJDAiBgNVBAMTG0NlcnR1
 # bSBUaW1lc3RhbXBpbmcgMjAyMSBDQQIRAPFkJYwJtuJ74g4yYI5L9KgwDQYJKoZI
-# hvcNAQEBBQAEggIAI2Hpngfc3hpvYAO5Gthz8BG614SPeHPQ59tf9OUqGJIjsvQr
-# qANMoBbXF39Dr6urG3EPaXAbe8lpl/9XhUzZoiQs7XP0a4Z7HCl+LPyVsqRrOMlc
-# okzWCYSpD1GkbVJkakYWPJhMjwJpnQ2RwsBvBsZbpgzxjstBT3lsAsRHx7sxmU3e
-# 9D1GX9kjpOLqNQ9JtZpDLzt45ot+JO77szdDQ68cvGGpXvYqx3ugopr4VRsXGcQB
-# Mn8iXDYsgkbOHXJEXYzEpFWE5AzIRzCi19fupz8fK11PN2/KgNtiLQeZBV6ZoEdq
-# gdz4LJOsqAckeG14s8SBwMu1UIEpTus5ETejaeyR5ej2GFtUqT42kB4MBx6KizJj
-# 3gphCBolVgXCAaafk2SDwDkkkjSDDKXQE6Es7pPMkFyUIhDFPTC0ZX+/qYkzEaRb
-# iVDHm9hFUfXijxPmju3QDRKpMDysZTPlPTan1mVCckbsNtL4nqqny9meeF+49jhI
-# ldO+ndmeSR7J+9pFZxsA7S2xz97SE14s4RxL2guXeACdgVNclPFIgydu/IzEnJkc
-# tWE7ZFQHNFatw/JCRy9SpPyMPo2EWScuwZlm+SstPWJkLlrojkILFpqLyfKrYLT+
-# 2NpNwfT8jR7Vmqf2YXXfnZbwEshNRjqDRXy8olHwS1a/awkOD6FcXR147Zs=
+# hvcNAQEBBQAEggIAw+vLFOcHQW7lAuibyMXv9Li/u9vv0xPlLId88nTAoRFUjtum
+# r9kLDTMmE/PePseMwbYz41dOUnDLhGQ+xWi+n5eSCsEc1/MeRtz2fNQrj0heuq5s
+# Frhzlq0LBEJYgzSt5dDdayfKADsPREf0dxafeGeJqEI9f+NzKhg+nNpoi+6eSYJG
+# II+Yb1Teno+iUFKQWyJWyFTMaljPXKz5OPvrhKBu50GpumuoXMetnU+aHrwwNEdm
+# J7eh0Fz/EGm270Hkp57x47JfKAFEzZ8rwdQUEq75ntch3vAI/Jsg5Ahrs7dAGNOy
+# ikBL18qNs+Ih2DyPRje9wAhmxa2OE8cJN+38Orm+1amFowgLBOOKuKh7VgF1U5Sl
+# 2K0YvOvDQxdlfC69ofNTZSUUgaoJGStvnuQ+2Ux3eQcWIseaRZCJuUIwralJTHrB
+# 6zt96goBIvbJmGzq9LCXrpma74gmIxjMGWgG0EnhUmjvsWUoooeErwXefczWFzY5
+# idWpl8xD3UqxuD26aMS2789kpjYNu+YcM2J0ojzATk7Npc7CpaMmFS9L/cB+rXvQ
+# QPL7y3zys9ywSqiVEflwaMPS4B5Yr0TJhPHX8FaEnE6G0GdZMsaQUbeqzqBBkyLG
+# TSA0UqeFnvS5EBGFWN7RYX1UX+iMNmzuKT6mTETUmsYZUH2wDjVwwToXzms=
 # SIG # End signature block
