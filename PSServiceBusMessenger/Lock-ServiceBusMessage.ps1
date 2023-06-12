@@ -68,11 +68,11 @@ Function Lock-ServiceBusMessage
 
     Process
     {
-        if($null -ne $MessageId)
+        if($PSCmdlet.MyInvocation.BoundParameters['MessageId'])
         {
             $Uri = "https://$($Endpoint.Host)/$EntityPath/messages/$MessageId/$LockToken"
         }
-        if($null -ne $MessageSequenceNumber)
+        if($PSCmdlet.MyInvocation.BoundParameters['MessageSequenceNumber'])
         {
             $Uri = "https://$($Endpoint.Host)/$EntityPath/messages/$MessageSequenceNumber/$LockToken"
         }
